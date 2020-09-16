@@ -1,0 +1,23 @@
+<div class="navigator">
+  <a routerLink="/1">
+    <i class="material-icons">first_page</i>
+  </a>
+  <a *ngIf="hasPrevPage; else disabledPrevPage" routerLink="/{{prevPageNumber}}">
+    <i class="material-icons">chevron_left</i>
+  </a>
+  <ng-template #disabledPrevPage>
+    <i class="material-icons disabled">chevron_left</i>
+  </ng-template>
+  <div class="current-page-wrapper">
+    <span>{{currentPage}}</span>
+  </div>
+  <a *ngIf="hasNextPage; else disabledNextPage" routerLink="/{{nextPageNumber}}">
+    <i class="material-icons">chevron_right</i>
+  </a>
+  <ng-template #disabledNextPage>
+    <i class="material-icons disabled">chevron_right</i>
+  </ng-template>
+  <a routerLink="/{{pagesCount}}">
+    <i class="material-icons">last_page</i>
+  </a>
+</div>

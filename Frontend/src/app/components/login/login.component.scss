@@ -1,0 +1,26 @@
+.login {
+  margin: auto;
+  width: 500px;
+  padding-top: 100px;
+
+  .fields-container {
+    display: flex;
+    flex-direction: column;
+
+    * {
+      width: 100%;
+    }
+  }
+
+  .login-error-wrapper {
+    margin: 8px;
+    border: 1px solid darkred;
+    background-color: #ff000069;
+    border-radius: 5px;
+
+    .login-error-text {
+      display: block;
+      padding: 10px;
+    }
+  }
+}

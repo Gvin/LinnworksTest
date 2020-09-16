@@ -11,7 +11,7 @@ namespace LinnworksBackend.Services
 {
     public interface IJwtTokenService
     {
-        string GenerateJwtToken(UserModel user);
+        string GenerateJwtToken(UserModel user, string role);
     }
 
     public class JwtTokenService : IJwtTokenService
@@ -27,13 +27,14 @@ namespace LinnworksBackend.Services
             this._configuration = configuration;
         }
 
-        public string GenerateJwtToken(UserModel user)
+        public string GenerateJwtToken(UserModel user, string role)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Role, role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration[ParameterKey]));

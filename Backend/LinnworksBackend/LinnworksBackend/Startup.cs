@@ -32,6 +32,7 @@ namespace LinnworksBackend
         {
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IDatabaseSeedingService, DatabaseSeedingService>();
 
             ConfigureDb(services);
             ConfigureAuthentication(services);
@@ -48,7 +49,7 @@ namespace LinnworksBackend
 
         private void ConfigureAuthentication(IServiceCollection services)
         {
-            services.AddIdentity<UserModel, IdentityRole>()
+            services.AddIdentity<UserModel, UserRole>()
                 .AddEntityFrameworkStores<ApplicationDatabase>()
                 .AddDefaultTokenProviders();
 
@@ -97,14 +98,14 @@ namespace LinnworksBackend
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDatabase database)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDatabase database, IDatabaseSeedingService databaseSeedingService)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
 
             app.UseCors(builder =>
             {
@@ -125,13 +126,15 @@ namespace LinnworksBackend
 
             database.Database.EnsureCreated();
 
+            databaseSeedingService.SeedDatabase();
+
             // app.UseHttpsRedirection();
             //
-            
+
             //
-            
+
             //
-            
+
         }
     }
 }

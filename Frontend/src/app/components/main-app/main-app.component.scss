@@ -1,0 +1,16 @@
+@import '../../../assets/styles/app-header';
+
+.application-wrapper {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+
+  .header-wrapper {
+    width: 100%;
+  }
+
+  .main-area-wrapper {
+    height: calc(100% - #{$header-height});
+    overflow: auto;
+  }
+}

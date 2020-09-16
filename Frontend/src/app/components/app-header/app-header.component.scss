@@ -1,0 +1,69 @@
+@import '../../../assets/styles/app-header';
+
+.header {
+  height: $header-height;
+
+  .header-link {
+    display: inherit;
+
+    .header-icon {
+      background-image: url(../../../assets/images/icon-white.png);
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+  
+      height: 32px;
+      width: 32px;
+    }
+
+    .header-title {
+      font-size: x-large;
+      color: white;
+      display: inline;
+      padding-left: 5px;
+    }
+  }
+
+  .space-filler {
+    flex: 1 1 auto;
+  }
+
+  .inline-panel {
+    display: inline;
+  }
+
+  .no-login-panel {
+    a {
+      margin-left: 10px;
+      line-height: 32px;
+      text-decoration: none;
+
+      &:hover {
+        color: initial;
+      }
+    }
+  }
+
+  .login-panel {
+    .account-icon {
+      font-size: xx-large;
+      vertical-align: top;
+    }
+
+    button, a {
+      margin-left: 10px;
+      line-height: 32px;
+    }
+
+    .user-name {
+      margin-left: 0;
+      color: #fff;
+    }
+
+    .account-icon {
+      height: 32px;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+  }
+}

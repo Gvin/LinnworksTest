@@ -1,6 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using LinnworksBackend.Model.Client;
+using LinnworksBackend.Model.Database;
 using LinnworksBackend.Model.Views;
 using LinnworksBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LinnworksBackend.Controllers
@@ -35,11 +39,14 @@ namespace LinnworksBackend.Controllers
                 return BadRequest(ModelState);
             }
 
-            return Task.FromResult(_jwtTokenService.GenerateJwtToken(user));
+            var role = await _userService.GetUserRole(user);
+
+            return Task.FromResult(_jwtTokenService.GenerateJwtToken(user, role));
         }
 
-        [HttpPost("register")]
-        public async Task<object> Register()
+        [Authorize(Roles = UserRole.AdministratorRole)]
+        [HttpPost("create")]
+        public async Task<IActionResult> Create()
         {
             if (!ModelState.IsValid)
             {
@@ -48,8 +55,9 @@ namespace LinnworksBackend.Controllers
 
             var login = Request.Form["login"];
             var password = Request.Form["password"];
+            var role = Request.Form["role"];
 
-            var registerResult = await _userService.Register(login, password);
+            var registerResult = await _userService.CreateUser(login, password, role);
             if (registerResult.HasErrors)
             {
                 foreach (var error in registerResult.Errors)
@@ -59,9 +67,19 @@ namespace LinnworksBackend.Controllers
                 }
             }
 
-            var user = await _userService.LogIn(login, password);
+            return Ok();
+        }
 
-            return Task.FromResult(_jwtTokenService.GenerateJwtToken(user));
+        [Authorize(Roles = UserRole.AdministratorRole)]
+        [HttpGet("list")]
+        public async IAsyncEnumerable<UserClientModel> List()
+        {
+            var users = _userService.GetUsers();
+            foreach(var user in  users)
+            {
+                var role = await _userService.GetUserRole(user);
+                yield return new UserClientModel{Login = user.UserName, Role = role};
+            }
         }
     }
 }

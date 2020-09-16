@@ -1,0 +1,22 @@
+$font-size: 36px;
+
+.navigator {
+  margin: auto;
+  width: 160px;
+
+  .material-icons {
+    font-size: $font-size;
+  }
+
+  i.disabled {
+    color: lightgray;
+    cursor: default;
+  }
+
+  .current-page-wrapper {
+    display: inline-block;
+    font-size: x-large;
+    vertical-align: top;
+    color: lightgray;
+  }
+}
