@@ -10,5 +10,7 @@ namespace LinnworksBackend.Data
             : base(options)
         {
         }
+
+        public DbSet<SaleDataModel> Sales { get; set; }
     }
 }

@@ -3,8 +3,8 @@
         <div class="header-icon"></div>
         <div class="header-title">Linnworks Test</div>
     </a>
-    <div *ngIf="getIfUserCanManageData()" class="inline-panel">
-        <a routerLink="/data" class="link-button" mat-raised-button>Data</a>
+    <div *ngIf="getIfUserCanManageSales()" class="inline-panel">
+        <a routerLink="/sales" class="link-button" mat-raised-button>Sales</a>
     </div>
     <div *ngIf="getIfUserCanManageUsers()" class="inline-panel">
         <a routerLink="/users" class="link-button" mat-raised-button>Users</a>

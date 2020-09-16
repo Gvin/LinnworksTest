@@ -33,6 +33,7 @@ namespace LinnworksBackend
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IDatabaseSeedingService, DatabaseSeedingService>();
+            services.AddScoped<ISalesService, SalesService>();
 
             ConfigureDb(services);
             ConfigureAuthentication(services);

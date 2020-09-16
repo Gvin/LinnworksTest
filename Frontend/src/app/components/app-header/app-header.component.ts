@@ -26,7 +26,7 @@ export class AppHeaderComponent implements OnDestroy {
     return this.userService.getIfUserInRole([Roles.Admin]);
   }
 
-  public getIfUserCanManageData(): boolean {
+  public getIfUserCanManageSales(): boolean {
     return this.userService.getIfUserInRole([Roles.Admin, Roles.Manager, Roles.Reader]);
   }
 

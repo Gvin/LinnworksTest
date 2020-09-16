@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LinnworksBackend.Model.Database
 {
-    public class OrderModel
+    public class SaleDataModel
     {
         public string Region { get; set; }
 
