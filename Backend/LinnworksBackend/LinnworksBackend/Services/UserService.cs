@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using LinnworksBackend.Data;
@@ -22,6 +23,10 @@ namespace LinnworksBackend.Services
         UserModel[] GetUsers();
 
         Task<string> GetUserRole(UserModel user);
+
+        Task DeleteUserById(string userId);
+
+        Task UpdateUser(string userId, string login, string role);
     }
 
     public class UserService : IUserService
@@ -89,6 +94,40 @@ namespace LinnworksBackend.Services
                 throw new ApplicationException($"Several roles detected for user {user.UserName}");
 
             return roles[0];
+        }
+
+        public async Task DeleteUserById(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+                throw new ApplicationException($"Unable to delete user {user.UserName}: {string.Join("; ", result.Errors)}");
+        }
+
+        public async Task UpdateUser(string userId, string login, string role)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            var currentRole = await GetUserRole(user);
+
+            if (!string.Equals(user.UserName, login))
+            {
+                user.UserName = login;
+                var loginUpdateResult = await _userManager.UpdateAsync(user);
+                if (!loginUpdateResult.Succeeded)
+                    throw new ApplicationException($"Unable to update user login {user.UserName}: {string.Join("; ", loginUpdateResult.Errors)}");
+                
+            }
+
+            if (!string.Equals(currentRole, role))
+            {
+                var roleRemoveResult = await _userManager.RemoveFromRoleAsync(user, currentRole);
+                if (!roleRemoveResult.Succeeded)
+                    throw new ApplicationException($"Unable to remove current role from user: {string.Join("; ", roleRemoveResult.Errors)}");
+
+                var roleUpdateResult = await _userManager.AddToRoleAsync(user, role);
+                if (!roleUpdateResult.Succeeded)
+                    throw new ApplicationException($"Unable to assign new role {role} to user: {string.Join("; ",roleUpdateResult.Errors)}");
+            }
         }
     }
 }

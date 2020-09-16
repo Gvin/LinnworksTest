@@ -1,0 +1,38 @@
+.wrapper {
+    
+    .commands-wrapper {
+        padding-top: 20px;
+        width: 80%;
+        margin: auto;
+
+        .command-button {
+            margin-left: 10px;
+        }
+
+        a.command-button {
+            line-height: 36px;
+            text-decoration: none;
+
+            &:hover {
+            color: initial;
+            }
+        }
+    }
+
+
+    .table-wrapper {
+        padding-top: 20px;
+        width: 80%;
+        margin: auto;
+
+        .mat-column-select {
+            overflow: initial;
+        }
+    }
+    
+    .loading-wrapper {
+        padding-top: 20px;
+        width: fit-content;
+        margin: auto;
+    }
+}

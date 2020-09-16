@@ -12,6 +12,10 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatTableModule} from '@angular/material/table';
+import {MatSelectModule} from '@angular/material/select';
+import {MatSortModule} from '@angular/material/sort';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
@@ -31,7 +35,11 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     ReactiveFormsModule,
     FormsModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    MatTableModule,
+    MatSelectModule,
+    MatSortModule,
+    MatCheckboxModule
   ],
   declarations: [
     ...ComponentsList

@@ -1,0 +1,40 @@
+<div class="create-user">
+    <form>
+      <mat-card>
+        <mat-card-title>Enter new User data</mat-card-title>
+        <mat-card-content class="fields-container">
+  
+          <mat-form-field appearance="legacy">
+            <mat-label>Login</mat-label>
+            <input #login [formControl]="loginField" matInput placeholder="Login">
+            <mat-error *ngIf="hasRequiredError(loginField)">Login field should not be empty.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="legacy">
+            <mat-label>Password</mat-label>
+            <input #password [formControl]="passwordField" type="password" matInput placeholder="Password">
+            <mat-error *ngIf="hasRequiredError(passwordField)">Password field should not be empty.</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Role</mat-label>
+            <mat-select #role [formControl]="roleField" placeholder="Role">
+                <mat-option value="Administrator">Administrator</mat-option>
+                <mat-option value="Manager">Manager</mat-option>
+                <mat-option value="Reader">Reader</mat-option>
+            </mat-select>
+          </mat-form-field>
+  
+        </mat-card-content>
+  
+        <mat-card-actions>
+          <button (click)="handleCreateClick()" type="submit" mat-raised-button color="primary">Create</button>
+          <button (click)="handleCancelClick()" type="button" mat-raised-button>Cancel</button>
+        </mat-card-actions>
+  
+        <mat-card-footer>
+          <div *ngIf="creationError" class="creation-error-wrapper">
+            <span class="creation-error-text">Unable to create User.</span>
+          </div>
+        </mat-card-footer>
+      </mat-card>
+    </form>
+</div>

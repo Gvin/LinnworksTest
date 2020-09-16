@@ -13,6 +13,7 @@ import {NavigatorComponent} from './navigator/navigator.component';
 // import {FileSelectorComponent} from './file-selector/file-selector.component';
 import {DataGridComponent} from './data-grid/data-grid.component';
 import {UsersListComponent} from './users-list/users-list.component';
+import {CreateUserComponent} from './create-user/create-user.component';
 
 export const ComponentsList = [
   MainAppComponent,
@@ -29,5 +30,6 @@ export const ComponentsList = [
   // ErrorsListComponent,
   // FileSelectorComponent
   DataGridComponent,
-  UsersListComponent
+  UsersListComponent,
+  CreateUserComponent
 ];

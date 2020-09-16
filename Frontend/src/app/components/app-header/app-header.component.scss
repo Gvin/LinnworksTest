@@ -32,15 +32,13 @@
     display: inline;
   }
 
-  .no-login-panel {
-    a {
-      margin-left: 10px;
-      line-height: 32px;
-      text-decoration: none;
+  a.link-button {
+    margin-left: 10px;
+    line-height: 32px;
+    text-decoration: none;
 
-      &:hover {
-        color: initial;
-      }
+    &:hover {
+      color: initial;
     }
   }
 

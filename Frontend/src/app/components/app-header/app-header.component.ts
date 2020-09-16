@@ -1,6 +1,6 @@
 import {Component, OnDestroy} from '@angular/core';
 import {Subscription} from 'rxjs';
-import {UserModel} from '../../models/user.model';
+import {Roles, UserModel} from '../../models/user.model';
 import {UserService} from '../../services/user-service/user.service';
 import {Router} from '@angular/router';
 
@@ -20,6 +20,14 @@ export class AppHeaderComponent implements OnDestroy {
 
   public getIfUserLoggedIn(): boolean {
     return this.userService.getIfUserLoggedIn();
+  }
+
+  public getIfUserCanManageUsers(): boolean {
+    return this.userService.getIfUserInRole([Roles.Admin]);
+  }
+
+  public getIfUserCanManageData(): boolean {
+    return this.userService.getIfUserInRole([Roles.Admin, Roles.Manager, Roles.Reader]);
   }
 
   public get currentUser(): UserModel {

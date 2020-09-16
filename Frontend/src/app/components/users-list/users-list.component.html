@@ -1,1 +1,62 @@
-Users List
+<div class="wrapper">
+    <div class="commands-wrapper" *ngIf="!loading">
+        <a mat-raised-button class="command-button" routerLink="/users/create">Create</a>
+        <button *ngIf="canDeleteUser()" class="command-button" mat-raised-button (click)="deleteSelectedUser()">Delete</button>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading">
+        <mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+            <!-- Selection Column -->
+            <ng-container matColumnDef="select">
+                <mat-header-cell *matHeaderCellDef></mat-header-cell>
+                <mat-cell *matCellDef="let row">
+                    <mat-checkbox (click)="$event.stopPropagation()"
+                                (change)="$event ? selection.toggle(row) : null"
+                                [checked]="selection.isSelected(row)">
+                    </mat-checkbox>
+                </mat-cell>
+            </ng-container>
+
+            <!-- Login Column -->
+            <ng-container matColumnDef="login">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Login </mat-header-cell>
+                
+                <mat-cell *matCellDef="let element">
+                    <ng-container *ngIf="canEditUser(element)">
+                        <mat-form-field floatLabel="never">
+                            <input matInput placeholder="Login" [value]="element.login" (keydown.enter)="update(element)" [(ngModel)]="element.login">
+                        </mat-form-field>
+                    </ng-container>
+                    <ng-container *ngIf="!canEditUser(element)">
+                        {{element.login}}
+                    </ng-container>
+                </mat-cell>
+            </ng-container>
+    
+            <!-- Role Column -->
+            <ng-container matColumnDef="role">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> Role </mat-header-cell>
+                <mat-cell *matCellDef="let element">
+                    <ng-container *ngIf="canEditUser(element)">
+                        <mat-form-field floatLabel="never">
+                            <mat-select [(value)]="element.role" (selectionChange)="update(element)" placeholder="Role">
+                                <mat-option value="Administrator">Administrator</mat-option>
+                                <mat-option value="Manager">Manager</mat-option>
+                                <mat-option value="Reader">Reader</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </ng-container>
+                    <ng-container *ngIf="!canEditUser(element)">
+                        {{element.role}}
+                    </ng-container>
+                </mat-cell>
+            </ng-container>
+    
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+    </div>
+    <div class="loading-wrapper" *ngIf="loading">
+        Loading...
+    </div>
+</div>
