@@ -4,9 +4,9 @@ export class SalesData {
     itemType: string;
     salesChannel: string;
     orderPriority: string;
-    orderDate: Date;
-    orderId: string;
-    shipDate: Date;
+    orderDate: string;
+    orderId?: string;
+    shipDate: string;
     unitsSold: number;
     unitPrice: number;
     unitCost: number;

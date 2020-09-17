@@ -37,7 +37,7 @@ export class SalesListComponent implements OnInit, AfterViewInit {
     }
 
     public ngOnInit(): void {
-        this.salesService.getSalesCount().subscribe((count) => {
+        this.salesService.getCount().subscribe((count) => {
             this.count = count;
         });
 

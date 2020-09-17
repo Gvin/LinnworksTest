@@ -27,7 +27,7 @@ export class SalesDataSource implements DataSource<SalesData> {
         this.loadingSubject.next(true);
         this.salesSubject.next([]);
 
-        this.salesService.getSales(pageIndex, pageSize).pipe(
+        this.salesService.getList(pageIndex, pageSize).pipe(
             catchError(() => of([])),
             finalize(() => this.loadingSubject.next(false))
         )
