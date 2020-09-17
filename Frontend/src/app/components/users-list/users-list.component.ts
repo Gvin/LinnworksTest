@@ -1,46 +1,79 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { take } from 'rxjs/operators';
+import { fromEvent, merge, Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, take, tap } from 'rxjs/operators';
 import { UserModel } from 'src/app/models/user.model';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { UsersDataSource } from './users-data-source';
 
+const defaultPageSize = 10;
 
 @Component({
     selector: 'users-list',
     templateUrl: './users-list.component.html',
     styleUrls: ['./users-list.component.scss']
 })
-export class UsersListComponent implements OnInit {
+export class UsersListComponent implements OnInit, AfterViewInit {
     public displayedColumns: string[] = ['select', 'login', 'role'];
-    public dataSource = new MatTableDataSource<UserModel>();
-    public loading: boolean;
+    public dataSource: UsersDataSource;
+    public count: number;
 
     public selection = new SelectionModel<UserModel>(false, []);
 
     @ViewChild(MatSort) 
     sort: MatSort;
 
+    @ViewChild(MatPaginator) 
+    paginator: MatPaginator
+
+    @ViewChild('input') 
+    searchInput: ElementRef;
+
     constructor(private userService: UserService) {
-        this.loading = false;
     }
 
     public ngOnInit(): void {
-        this.loadData();
+        this.userService.getUsersCount('').subscribe((count) => {
+            this.count = count;
+        });
+
+        this.dataSource = new UsersDataSource(this.userService);
+        this.dataSource.loadUsers('', 'asc', 0, defaultPageSize);
     }
 
-    private loadData(): void {
-        this.loading = true;
-        this.dataSource.data = [];
+    public ngAfterViewInit(): void {
+        fromEvent(this.searchInput.nativeElement,'keyup')
+            .pipe(
+                debounceTime(150),
+                distinctUntilChanged(),
+                tap(() => {
+                    this.paginator.pageIndex = 0;
+                    this.userService.getUsersCount(this.searchInput.nativeElement.value).subscribe((count) => {
+                        this.count = count;
+                        this.loadUsersPage();
+                    });
+                })
+            )
+            .subscribe();
 
-        this.userService.getUsers().pipe(
-          take(1)
-        ).subscribe(users => {
-            this.dataSource.data = users;
-            this.dataSource.sort = this.sort;
-            this.loading = false;
-        });
+        this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+        
+        merge(this.sort.sortChange, this.paginator.page)
+            .pipe(
+                tap(() => this.loadUsersPage())
+            )
+            .subscribe();
+    }
+
+    private loadUsersPage(): void {
+        this.dataSource.loadUsers(
+            this.searchInput.nativeElement.value,
+            this.sort.direction,
+            this.paginator.pageIndex,
+            this.paginator.pageSize);
     }
 
     public canDeleteUser(): boolean {
@@ -59,13 +92,11 @@ export class UsersListComponent implements OnInit {
     }
 
     public update(user: UserModel): void {
-        this.loading = true;
         this.userService.update(user).subscribe((result) => {
             if (!result) {
                 // TODO: Replace alert
                 alert('Error while updating user');
             }
-            this.loading = false;
         });
     }
 
@@ -74,28 +105,18 @@ export class UsersListComponent implements OnInit {
             return;
         }
 
-        this.loading = true;
-        
         const selectedId = this.selection.selected[0].id;
         this.userService.delete(selectedId).subscribe((result) => {
             if (!result) {
                 // TODO: Replace alert
                 alert('Error while deleting user');
             }
-            this.loadData();
+            
+            this.paginator.pageIndex = 0;
+            this.userService.getUsersCount(this.searchInput.nativeElement.value).subscribe((count) => {
+                this.count = count;
+                this.loadUsersPage();
+            });
         });
-    }
-
-    public isAllSelected(): boolean {
-        const numSelected = this.selection.selected.length;
-        const numRows = this.dataSource.data.length;
-        return numSelected == numRows;
-    }
-      
-      /** Selects all rows if they are not all selected; otherwise clear selection. */
-    public masterToggle(): void {
-        this.isAllSelected() ?
-        this.selection.clear() :
-        this.dataSource.data.forEach(row => this.selection.select(row));
     }
 }

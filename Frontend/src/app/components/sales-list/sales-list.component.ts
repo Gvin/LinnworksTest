@@ -24,7 +24,7 @@ export class SalesListComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.dataSource.
+        //this.dataSource.
         // TODO: get sales from backend and show them
     }
 }

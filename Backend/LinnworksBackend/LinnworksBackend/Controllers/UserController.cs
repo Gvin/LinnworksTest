@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using LinnworksBackend.Model.Client;
 using LinnworksBackend.Model.Database;
@@ -80,14 +82,23 @@ namespace LinnworksBackend.Controllers
 
         [Authorize(Roles = UserRole.AdministratorRole)]
         [HttpGet("list")]
-        public async IAsyncEnumerable<UserClientModel> List()
+        public async IAsyncEnumerable<UserClientModel> List(string filter, string sort, int pageIndex, int pageSize)
         {
-            var users = _userService.GetUsers();
+            var startIndex = pageIndex * pageSize;
+            var users = await _userService.GetUsers(filter, sort, startIndex, pageSize);
+
             foreach(var user in  users)
             {
                 var role = await _userService.GetUserRole(user);
                 yield return new UserClientModel{Id = user.Id, Login = user.UserName, Role = role};
             }
+        }
+
+        [Authorize(Roles = UserRole.AdministratorRole)]
+        [HttpGet("count")]
+        public async Task<int> Count(string filter)
+        {
+            return await _userService.GetUsersCount(filter);
         }
 
         [Authorize(Roles = UserRole.AdministratorRole)]

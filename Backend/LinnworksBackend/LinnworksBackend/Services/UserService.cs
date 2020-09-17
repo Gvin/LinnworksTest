@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using LinnworksBackend.Data;
 using LinnworksBackend.Model.Database;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,13 +11,13 @@ namespace LinnworksBackend.Services
 {
     public interface IUserService
     {
-        UserModel GetCurrentUser();
-
         Task<OperationResult<UserModel, IdentityError>> CreateUser(string login, string password, string role);
 
         Task<UserModel> LogIn(string login, string password);
 
-        UserModel[] GetUsers();
+        Task<UserModel[]> GetUsers(string filter, string sort, int startIndex, int count);
+
+        Task<int> GetUsersCount(string filter);
 
         Task<string> GetUserRole(UserModel user);
 
@@ -33,29 +30,13 @@ namespace LinnworksBackend.Services
     {
         private readonly UserManager<UserModel> _userManager;
         private readonly SignInManager<UserModel> _signInManager;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ApplicationDatabase _database;
 
         public UserService(
-            ApplicationDatabase database,
             UserManager<UserModel> userManager,
-            SignInManager<UserModel> signInManager,
-            IHttpContextAccessor httpContextAccessor)
+            SignInManager<UserModel> signInManager)
         {
-            _database = database;
             _userManager = userManager;
             _signInManager = signInManager;
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        public UserModel GetCurrentUser()
-        {
-            var caller = _httpContextAccessor.HttpContext.User;
-            var userClaim = caller.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
-            if (userClaim == null)
-                return null;
-            var userId = userClaim.Value;
-            return _database.Users.FirstOrDefault(user => user.Id == userId);
         }
 
         public async Task<OperationResult<UserModel, IdentityError>> CreateUser(string login, string password, string role)
@@ -82,9 +63,31 @@ namespace LinnworksBackend.Services
             return null;
         }
 
-        public UserModel[] GetUsers()
+        public async Task<UserModel[]> GetUsers(string filter, string sort, int startIndex, int count)
         {
-            return _userManager.Users.ToArray();
+            var filteredResult = string.IsNullOrEmpty(filter) ? 
+                _userManager.Users : 
+                _userManager.Users.Where(user => user.UserName.ToLower().Contains(filter.ToLower()));
+
+            if (string.Equals(sort, "asc", StringComparison.OrdinalIgnoreCase))
+            {
+                filteredResult = filteredResult.OrderBy(user => user.UserName);
+            }
+            else if (string.Equals(sort, "desc", StringComparison.OrdinalIgnoreCase))
+            {
+                filteredResult = filteredResult.OrderByDescending(user => user.UserName);
+            }
+
+            return await filteredResult.Skip(startIndex).Take(count).ToArrayAsync();
+        }
+
+        public async Task<int> GetUsersCount(string filter)
+        {
+            if (string.IsNullOrEmpty(filter))
+                return await _userManager.Users.CountAsync();
+
+            return await _userManager.Users.Where(user => user.UserName.ToLower().Contains(filter.ToLower()))
+                .CountAsync();
         }
 
         public async Task<string> GetUserRole(UserModel user)

@@ -1,11 +1,15 @@
 <div class="wrapper">
-    <div class="commands-wrapper" *ngIf="!loading">
+    <div class="commands-wrapper">
         <a mat-raised-button class="command-button" routerLink="/users/create">Create</a>
         <button *ngIf="canDeleteUser()" class="command-button" mat-raised-button (click)="deleteSelectedUser()">Delete</button>
     </div>
 
-    <div class="table-wrapper" *ngIf="!loading">
-        <mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+    <div class="table-wrapper">
+        <mat-input-container>
+            <input matInput placeholder="Search users" #input>
+        </mat-input-container>
+        
+        <mat-table [dataSource]="dataSource" matSort matSortActive="login" matSortDirection="asc" matSortDisableClear class="mat-elevation-z8">
             <!-- Selection Column -->
             <ng-container matColumnDef="select">
                 <mat-header-cell *matHeaderCellDef></mat-header-cell>
@@ -35,7 +39,7 @@
     
             <!-- Role Column -->
             <ng-container matColumnDef="role">
-                <mat-header-cell *matHeaderCellDef mat-sort-header> Role </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef> Role </mat-header-cell>
                 <mat-cell *matCellDef="let element">
                     <ng-container *ngIf="canEditUser(element)">
                         <mat-form-field floatLabel="never">
@@ -55,8 +59,12 @@
             <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
             <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
         </mat-table>
-    </div>
-    <div class="loading-wrapper" *ngIf="loading">
-        Loading...
+
+        <div class="loading-wrapper" *ngIf="dataSource.loading$ | async">
+            <mat-spinner></mat-spinner>
+        </div>
+
+        <mat-paginator [length]="count" [pageSize]="defaultPageSize"
+                   [pageSizeOptions]="[10, 25, 50]"></mat-paginator>
     </div>
 </div>

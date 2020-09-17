@@ -31,8 +31,17 @@ export class UserService {
         return JSON.parse(userData);
     }
 
-    public getUsers(): Observable<UserModel[]> {
-        return this.httpService.get<UserModel[]>('/api/user/list');
+    public getUsers(filter: string, sortDirection: string, pageIndex: number, pageSize: number): Observable<UserModel[]> {
+        return this.httpService.get<UserModel[]>('/api/user/list', {
+            'filter': filter, 
+            'sort': sortDirection,
+            'pageIndex': pageIndex.toString(), 
+            'pageSize': pageSize.toString()
+        });
+    }
+
+    public getUsersCount(filter: string): Observable<number> {
+        return this.httpService.get<number>('/api/user/count', {'filter': filter});
     }
 
     public getIfUserLoggedIn(): boolean {
