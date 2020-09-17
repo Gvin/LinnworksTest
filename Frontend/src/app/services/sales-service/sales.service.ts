@@ -10,12 +10,18 @@ export class SalesService {
     constructor(private httpService: HttpService) {
     }
 
-    public getSales(startIndex: number, count: number): Observable<SalesData[]> {
+    public getSales(pageIndex: number, pageSize: number): Observable<SalesData[]> {
         const url = '/api/sales';
 
         return this.httpService.get<SalesData[]>(url, {
-            'startIndex': `${startIndex}`,
-            'count': `${count}`
+            'pageIndex': `${pageIndex}`,
+            'pageSize': `${pageSize}`
         });
+    }
+
+    public getSalesCount(): Observable<number> {
+        const url = '/api/sales/count';
+        
+        return this.httpService.get<number>(url);
     }
 }

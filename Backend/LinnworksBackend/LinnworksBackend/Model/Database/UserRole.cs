@@ -9,6 +9,9 @@ namespace LinnworksBackend.Model.Database
         public const string ManagerRole = "Manager";
         public const string ReaderRole = "Reader";
 
+        public const string RolesCanViewSales = AdministratorRole + "," + ManagerRole + "," + ReaderRole;
+        public const string RolesCanEditSales = AdministratorRole + "," + ManagerRole;
+
         public UserRole()
         {
         }

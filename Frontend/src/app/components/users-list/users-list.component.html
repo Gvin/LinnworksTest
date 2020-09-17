@@ -5,9 +5,9 @@
     </div>
 
     <div class="table-wrapper">
-        <mat-input-container>
+        <mat-form-field class="search-field">
             <input matInput placeholder="Search users" #input>
-        </mat-input-container>
+        </mat-form-field>
         
         <mat-table [dataSource]="dataSource" matSort matSortActive="login" matSortDirection="asc" matSortDisableClear class="mat-elevation-z8">
             <!-- Selection Column -->
@@ -24,16 +24,8 @@
             <!-- Login Column -->
             <ng-container matColumnDef="login">
                 <mat-header-cell *matHeaderCellDef mat-sort-header> Login </mat-header-cell>
-                
                 <mat-cell *matCellDef="let element">
-                    <ng-container *ngIf="canEditUser(element)">
-                        <mat-form-field floatLabel="never">
-                            <input matInput placeholder="Login" [value]="element.login" (keydown.enter)="update(element)" [(ngModel)]="element.login">
-                        </mat-form-field>
-                    </ng-container>
-                    <ng-container *ngIf="!canEditUser(element)">
-                        {{element.login}}
-                    </ng-container>
+                    <editable-table-cell fieldName="login" title="Login" [value]="element.login" [canEdit]="canEditUser(element)" (update)="update($event, element)"></editable-table-cell>
                 </mat-cell>
             </ng-container>
     

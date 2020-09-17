@@ -10,6 +10,10 @@ namespace LinnworksBackend.Services
     public interface ISalesService
     {
         IAsyncEnumerable<SaleDataModel> GetSales(int skip, int count);
+
+        Task SaveSaleData(SaleDataModel saleData);
+
+        Task<int> GetSalesCount();
     }
 
     public class SalesService : ISalesService
@@ -26,6 +30,16 @@ namespace LinnworksBackend.Services
             return _database.Sales
                 .Skip(skip)
                 .Take(count).AsAsyncEnumerable();
+        }
+
+        public async Task<int> GetSalesCount()
+        {
+            return await _database.Sales.CountAsync();
+        }
+
+        public async Task SaveSaleData(SaleDataModel saleData)
+        {
+            await _database.Sales.AddAsync(saleData);
         }
     }
 }

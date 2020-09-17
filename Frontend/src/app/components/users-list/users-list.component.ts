@@ -2,14 +2,12 @@ import { SelectionModel } from '@angular/cdk/collections';
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { fromEvent, merge, Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, take, tap } from 'rxjs/operators';
+import { fromEvent, merge } from 'rxjs';
+import { debounceTime, distinctUntilChanged, tap } from 'rxjs/operators';
 import { UserModel } from 'src/app/models/user.model';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { CellUpdate } from '../editable-table-cell/editable-table-cell.component';
 import { UsersDataSource } from './users-data-source';
-
-const defaultPageSize = 10;
 
 @Component({
     selector: 'users-list',
@@ -23,14 +21,16 @@ export class UsersListComponent implements OnInit, AfterViewInit {
 
     public selection = new SelectionModel<UserModel>(false, []);
 
+    public defaultPageSize: number = 10;
+
     @ViewChild(MatSort) 
-    sort: MatSort;
+    public sort: MatSort;
 
     @ViewChild(MatPaginator) 
-    paginator: MatPaginator
+    public paginator: MatPaginator
 
     @ViewChild('input') 
-    searchInput: ElementRef;
+    public searchInput: ElementRef;
 
     constructor(private userService: UserService) {
     }
@@ -41,7 +41,7 @@ export class UsersListComponent implements OnInit, AfterViewInit {
         });
 
         this.dataSource = new UsersDataSource(this.userService);
-        this.dataSource.loadUsers('', 'asc', 0, defaultPageSize);
+        this.dataSource.loadUsers('', 'asc', 0, this.defaultPageSize);
     }
 
     public ngAfterViewInit(): void {
@@ -91,7 +91,10 @@ export class UsersListComponent implements OnInit, AfterViewInit {
         return user.id.toLowerCase() !== currentUser.id.toLowerCase();
     }
 
-    public update(user: UserModel): void {
+    public update(event: CellUpdate, user: UserModel): void {
+
+        user[event.name] = event.value;
+
         this.userService.update(user).subscribe((result) => {
             if (!result) {
                 // TODO: Replace alert

@@ -7,6 +7,8 @@ import {NavigatorComponent} from './navigator/navigator.component';
 import {SalesListComponent} from './sales-list/sales-list.component';
 import {UsersListComponent} from './users-list/users-list.component';
 import {CreateUserComponent} from './create-user/create-user.component';
+import { EditableTableCellComponent } from './editable-table-cell/editable-table-cell.component';
+import { CreateSalesDataComponent } from './create-sales-data/create-sales-data.component';
 
 export const ComponentsList = [
   MainAppComponent,
@@ -17,5 +19,7 @@ export const ComponentsList = [
   // FileSelectorComponent
   SalesListComponent,
   UsersListComponent,
-  CreateUserComponent
+  CreateUserComponent,
+  EditableTableCellComponent,
+  CreateSalesDataComponent
 ];

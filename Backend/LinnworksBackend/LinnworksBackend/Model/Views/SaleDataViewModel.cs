@@ -1,11 +1,9 @@
 ﻿using System;
 
-namespace LinnworksBackend.Model.Client
+namespace LinnworksBackend.Model.Views
 {
-    public class SaleDataClientModel
+    public class SaleDataViewModel
     {
-        public long OrderId { get; set; }
-
         public string Region { get; set; }
 
         public string Country { get; set; }
