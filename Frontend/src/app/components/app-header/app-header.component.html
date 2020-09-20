@@ -11,7 +11,7 @@
     </div>
     <div class="space-filler"></div>
     <div *ngIf="getIfUserLoggedIn()" class="inline-panel login-panel">
-        Hello, <span class="material-icons account-icon">account_circle</span><a class="user-name" routerLink="/profile/{{currentUser.id}}">{{currentUser.login}}</a>!
+        Hello, <span class="material-icons account-icon">account_circle</span><span class="user-name">{{currentUser.login}}</span>!
         <button (click)="handleLogOutClick()" mat-raised-button>Log Out</button>
     </div>
     <div *ngIf="!getIfUserLoggedIn()" class="inline-panel">

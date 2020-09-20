@@ -23,6 +23,7 @@ namespace LinnworksBackend
             }
             finally
             {
+                Log.Information("Application Closing");
                 Log.CloseAndFlush();
             }
         }
@@ -43,7 +44,10 @@ namespace LinnworksBackend
                 .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>().ConfigureKestrel(o =>
+                    {
+                        o.Limits.KeepAliveTimeout = TimeSpan.FromHours(1);
+                    });
                 });
     }
 }

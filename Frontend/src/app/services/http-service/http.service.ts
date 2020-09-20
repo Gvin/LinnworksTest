@@ -45,7 +45,6 @@ export class HttpService {
         const req = new HttpRequest('POST', url, formData, {
             reportProgress: true
         });
-
         return this.httpClient.request(req).pipe<UploadProgress>(
             mergeMap(event => {
                 if (event.type === HttpEventType.UploadProgress) {

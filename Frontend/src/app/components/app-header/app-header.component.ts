@@ -40,6 +40,6 @@ export class AppHeaderComponent implements OnDestroy {
 
   public handleLogOutClick(): void {
     this.userService.logOut();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 }

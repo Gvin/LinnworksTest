@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using LinnworksBackend.Data.AsyncJobs;
+using LinnworksBackend.Hubs;
 using LinnworksBackend.Model.Client;
 using LinnworksBackend.Model.Database;
 using LinnworksBackend.Model.Views;
@@ -12,7 +12,8 @@ using LinnworksBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 namespace LinnworksBackend.Controllers
 {
@@ -20,24 +21,29 @@ namespace LinnworksBackend.Controllers
     [ApiController]
     public class SalesController : ControllerBase
     {
+        private const string CsvDelimiter = ",";
+        private const string CsvDateFormat = "M/d/yyyy";
+
+        private readonly ILogger<SalesController> _log;
         private readonly ISalesService _salesService;
-        private readonly IAsyncJobsProcessor _asyncJobsProcessor;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IHubContext<SalesImportProgressHub> _progressHubContext;
 
         public SalesController(
+            ILogger<SalesController> log,
             ISalesService salesService,
-            IAsyncJobsProcessor asyncJobsProcessor,
-            IServiceProvider serviceProvider)
+            IHubContext<SalesImportProgressHub> progressHubContext)
         {
+            _log = log;
             _salesService = salesService;
-            _asyncJobsProcessor = asyncJobsProcessor;
-            _serviceProvider = serviceProvider;
+            _progressHubContext = progressHubContext;
         }
 
         [Authorize(Roles = UserRole.RolesCanViewSales)]
         [HttpGet]
         public async IAsyncEnumerable<SaleDataClientModel> GetSales(string filter, string sort, int pageIndex, int pageSize)
         {
+            _log.LogInformation("GetSales");
+
             var startIndex = pageIndex * pageSize;
             await foreach (var sale in _salesService.GetSales(filter, sort, startIndex, pageSize))
             {
@@ -65,6 +71,8 @@ namespace LinnworksBackend.Controllers
         [HttpGet("count")]
         public async Task<int> GetCount(string filter)
         {
+            _log.LogInformation("GetCount");
+
             return await _salesService.GetSalesCount(filter);
         }
 
@@ -72,40 +80,73 @@ namespace LinnworksBackend.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] SaleDataViewModel saleData)
         {
+            _log.LogInformation("Create");
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var saleDataModel = new SaleDataModel
-            {
-                SalesChannel = saleData.SalesChannel,
-                TotalCost = decimal.Parse(saleData.TotalCost),
-                Region = saleData.Region,
-                TotalProfit = decimal.Parse(saleData.TotalProfit),
-                OrderPriority = saleData.OrderPriority,
-                UnitCost = decimal.Parse(saleData.UnitCost),
-                TotalRevenue = decimal.Parse(saleData.TotalRevenue),
-                ShipDate = saleData.ShipDate,
-                UnitsSold = saleData.UnitsSold,
-                UnitPrice = decimal.Parse(saleData.UnitPrice),
-                ItemType = saleData.ItemType,
-                Country = saleData.Country,
-                OrderDate = saleData.OrderDate
-            };
+            var saleDataModel = ConvertViewModel(saleData);
 
             await _salesService.SaveSaleData(saleDataModel);
             return Ok(true);
+        }
+
+        private SaleDataModel ConvertViewModel(SaleDataViewModel viewModel)
+        {
+            var result = new SaleDataModel
+            {
+                SalesChannel = viewModel.SalesChannel,
+                TotalCost = decimal.Parse(viewModel.TotalCost),
+                Region = viewModel.Region,
+                TotalProfit = decimal.Parse(viewModel.TotalProfit),
+                OrderPriority = viewModel.OrderPriority,
+                UnitCost = decimal.Parse(viewModel.UnitCost),
+                TotalRevenue = decimal.Parse(viewModel.TotalRevenue),
+                ShipDate = viewModel.ShipDate,
+                UnitsSold = viewModel.UnitsSold,
+                UnitPrice = decimal.Parse(viewModel.UnitPrice),
+                ItemType = viewModel.ItemType,
+                Country = viewModel.Country,
+                OrderDate = viewModel.OrderDate
+            };
+
+            if (viewModel.OrderId.HasValue)
+            {
+                result.OrderId = viewModel.OrderId.Value;
+            }
+
+            return result;
         }
 
         [Authorize(Roles = UserRole.RolesCanEditSales)]
         [HttpPost("delete")]
         public async Task<IActionResult> Delete()
         {
+            _log.LogInformation("Delete");
+
             var idsString = (string) Request.Form["ids"];
             var ids = idsString.Split(",").Select(id => long.Parse(id)).ToArray();
             await _salesService.DeleteSales(ids);
             return Ok(true);
+        }
+
+        [Authorize(Roles = UserRole.RolesCanEditSales)]
+        [HttpPost("update")]
+        public async Task<IActionResult> Update([FromBody] SaleDataViewModel saleData)
+        {
+            _log.LogInformation("Update");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var record = ConvertViewModel(saleData);
+
+            var updateResult = await _salesService.AddOrUpdateRecord(record);
+            return Ok(updateResult);
         }
 
         [Authorize(Roles = UserRole.RolesCanEditSales)]
@@ -114,28 +155,106 @@ namespace LinnworksBackend.Controllers
         [RequestSizeLimit(long.MaxValue)]
         public async Task<IActionResult> Import()
         {
-            var files = Request.Form.Files;
+            _log.LogInformation("Import");
 
-            var asyncJobIds = new List<string>();
-            foreach (var file in files)
+            await _progressHubContext
+                .Clients
+                .All
+                .SendAsync("taskStarted");
+
+            var salesDataToSave = new Dictionary<long, SaleDataModel>();
+
+            _log.LogDebug("Import -> Reading files");
+            for (var fileIndex = 0; fileIndex < Request.Form.Files.Count; fileIndex++)
             {
+                var file = Request.Form.Files[fileIndex];
                 var fileLines = ReadFileLines(file);
-                var job = new ImportAsyncJob(fileLines, _salesService);
-                var jobId = _asyncJobsProcessor.RegisterAsyncJob(job);
-                asyncJobIds.Add(jobId);
+
+                var header = fileLines[0].Split(CsvDelimiter);
+
+                for (var lineIndex = 1; lineIndex < fileLines.Length; lineIndex++)
+                {
+                    var line = fileLines[lineIndex];
+                    var record = ReadRecord(line, header);
+                    var saleData = ConvertRecord(record);
+
+                    if (salesDataToSave.ContainsKey(saleData.OrderId))
+                    {
+                        salesDataToSave[saleData.OrderId] = saleData;
+                    }
+                    else
+                    {
+                        salesDataToSave.Add(saleData.OrderId, saleData);
+                    }
+
+                    _progressHubContext
+                        .Clients
+                        .All
+                        .SendAsync("readDataProgressChanged", fileIndex, Request.Form.Files.Count, lineIndex, fileLines.Length).Wait();
+                }
             }
 
-            
-            // var batches = new List<SaleDataModel>();
-            // foreach (var file in files)
-            // {
-            //     var data = _csvReaderService.ReadData(file.OpenReadStream());
-            //     batches.AddRange(data);
-            // }
-            //
-            // var mergedData = MergeRecords(batches.ToArray());
-            // await _salesService.SaveSalesData(mergedData);
+            _log.LogDebug("Import -> Saving data");
+            var dataToSave = salesDataToSave.Values.ToArray();
+            for (int index = 0; index < dataToSave.Length; index++)
+            {
+                var saleData = dataToSave[index];
+                var saved = await _salesService.AddOrUpdateRecord(saleData);
+                _progressHubContext
+                    .Clients
+                    .All
+                    .SendAsync("saveDataProgressChanged", index, dataToSave.Length).Wait();
+            }
+
+            _log.LogDebug("Import -> Done");
+
+            await _progressHubContext
+                .Clients
+                .All
+                .SendAsync("taskEnded");
+
             return Ok(true);
+        }
+
+        private SaleDataModel ConvertRecord(Dictionary<string, string> record)
+        {
+            return new SaleDataModel
+            {
+                OrderId = long.Parse(record["Order ID"]),
+                Country = record["Country"],
+                TotalCost = decimal.Parse(record["Total Cost"]),
+                Region = record["Region"],
+                TotalProfit = decimal.Parse(record["Total Profit"]),
+                OrderPriority = record["Order Priority"],
+                UnitCost = decimal.Parse(record["Unit Cost"]),
+                TotalRevenue = decimal.Parse(record["Total Revenue"]),
+                ShipDate = DateTime.ParseExact(record["Ship Date"], CsvDateFormat, null),
+                UnitsSold = int.Parse(record["Units Sold"]),
+                UnitPrice = decimal.Parse(record["Unit Price"]),
+                ItemType = record["Item Type"],
+                SalesChannel = record["Sales Channel"],
+                OrderDate = DateTime.ParseExact(record["Order Date"], CsvDateFormat, null)
+            };
+        }
+
+        private Dictionary<string, string> ReadRecord(string dataLine, string[] columns)
+        {
+            if (string.IsNullOrEmpty(dataLine))
+                throw new ApplicationException("Invalid CSV file format");
+
+            var data = dataLine.Split(CsvDelimiter);
+            if (data.Length != columns.Length)
+                throw new ApplicationException("CSV columns and data count doesn't match");
+
+            var record = new Dictionary<string, string>();
+            for (int index = 0; index < columns.Length; index++)
+            {
+                var column = columns[index];
+                var value = data[index];
+                record.Add(column, value);
+            }
+
+            return record;
         }
 
         private string[] ReadFileLines(IFormFile file)
@@ -150,36 +269,6 @@ namespace LinnworksBackend.Controllers
             }
 
             return lines.ToArray();
-        }
-
-        [HttpGet("import-status")]
-        public IActionResult GetImportProgress(string jobId)
-        {
-            var job = _asyncJobsProcessor.GetJob<ImportAsyncJob>(jobId);
-            if (job == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(job.Progress);
-        }
-
-        private SaleDataModel[] MergeRecords(SaleDataModel[] records)
-        {
-            var result = new Dictionary<long, SaleDataModel>();
-            foreach (var record in records)
-            {
-                if (result.ContainsKey(record.OrderId))
-                {
-                    result[record.OrderId] = record;
-                }
-                else
-                {
-                    result.Add(record.OrderId, record);
-                }
-            }
-
-            return result.Values.ToArray();
         }
     }
 }

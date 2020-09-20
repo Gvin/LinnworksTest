@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using LinnworksBackend.Data;
 using LinnworksBackend.Data.AsyncJobs;
+using LinnworksBackend.Hubs;
 using LinnworksBackend.Model.Database;
 using LinnworksBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,10 +40,27 @@ namespace LinnworksBackend
             services.AddScoped<ISalesService, SalesService>();
             services.AddSingleton<IAsyncJobsProcessor, AsyncJobsProcessor>();
 
+            
+
             ConfigureDb(services);
             ConfigureAuthentication(services);
 
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyMethod()
+                    .AllowAnyHeader()
+                    // https://github.com/aspnet/SignalR/issues/2110 for AllowCredentials
+                    .AllowCredentials()
+                    .WithOrigins("http://localhost:4200");
+            }));
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddSignalR().AddHubOptions<SalesImportProgressHub>(options =>
+            {
+                options.EnableDetailedErrors = true;
+                options.KeepAliveInterval = TimeSpan.FromHours(1);
+            });
 
             services.Configure<FormOptions>(x =>
             {
@@ -112,20 +130,25 @@ namespace LinnworksBackend
 
             app.UseAuthentication();
 
-            app.UseCors(builder =>
-            {
-                builder.WithOrigins("http://localhost:4200/")
-                    .AllowAnyMethod()
-                    .AllowCredentials()
-                    .AllowAnyHeader();
-            });
+            // app.UseCors(builder =>
+            // {
+            //     builder.WithOrigins("http://localhost:4200/")
+            //         .AllowAnyMethod()
+            //         .AllowCredentials()
+            //         .AllowAnyHeader();
+            // });
+
+            app.UseCors("CorsPolicy");
 
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<SalesImportProgressHub>("/import-progress");
             });
+
+            app.UseHttpsRedirection();
 
             //app.UseMvc();
 
@@ -133,7 +156,7 @@ namespace LinnworksBackend
 
             databaseSeedingService.SeedDatabase();
 
-            // app.UseHttpsRedirection();
+            
             //
 
             //

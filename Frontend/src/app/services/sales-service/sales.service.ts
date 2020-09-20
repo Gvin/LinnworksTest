@@ -57,6 +57,17 @@ export class SalesService {
         );
     }
 
+    public update(salesData: SalesData): Observable<boolean> {
+        const url = '/api/sales/update';
+
+        return this.httpService.post<boolean>(url, salesData).pipe(
+            catchError(error => {
+                console.error('Error while trying to update sales data', error);
+                return of(false);
+            })
+        );
+    }
+
     public import(files: File[]): Observable<UploadProgress> {
         const url = '/api/sales/import';
 

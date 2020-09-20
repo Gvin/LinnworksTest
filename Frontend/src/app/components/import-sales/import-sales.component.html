@@ -20,9 +20,11 @@
                 </ng-container>
             </div>
 
-            <ng-container *ngIf="uploading">
-                <div>Uploading...</div>
-                <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+            <ng-container *ngIf="uploading" [ngSwitch]="operation">
+                <div *ngSwitchCase="'upload'">Uploading ({{progressValue | number:'1.0-0'}}%)</div>
+                <div *ngSwitchCase="'readData'">Reading Data ({{progressValue | number:'1.0-0'}}%)</div>
+                <div *ngSwitchCase="'saveData'">Saving Data ({{progressValue | number:'1.0-0'}}%)</div>
+                <mat-progress-bar mode="determinate" [value]="progressValue"></mat-progress-bar>
             </ng-container>
             
         </mat-card-content>

@@ -33,18 +33,7 @@
             <ng-container matColumnDef="role">
                 <mat-header-cell *matHeaderCellDef> Role </mat-header-cell>
                 <mat-cell *matCellDef="let element">
-                    <ng-container *ngIf="canEditUser(element)">
-                        <mat-form-field floatLabel="never">
-                            <mat-select [(value)]="element.role" (selectionChange)="update(element)" placeholder="Role">
-                                <mat-option value="Administrator">Administrator</mat-option>
-                                <mat-option value="Manager">Manager</mat-option>
-                                <mat-option value="Reader">Reader</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </ng-container>
-                    <ng-container *ngIf="!canEditUser(element)">
-                        {{element.role}}
-                    </ng-container>
+                    <editable-table-cell fieldName="role" title="Role" columnType="select" [options]="['Administrator','Manager','Reader']" [required]="true" [value]="element.role" [canEdit]="canEditUser(element)" (update)="update($event, element)"></editable-table-cell>
                 </mat-cell>
             </ng-container>
     

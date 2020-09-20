@@ -4,7 +4,7 @@
     "anonymousAuthentication": true,
     "iisExpress": {
       "applicationUrl": "http://localhost:5000",
-      "sslPort": 0
+      "sslPort": 44348
     }
   },
   "$schema": "http://json.schemastore.org/launchsettings.json",
@@ -20,7 +20,7 @@
     "LinnworksBackend": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "api/status/application",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

@@ -1,7 +1,14 @@
 {
-  "/api/*": {
-    "target": "http://localhost:5000/",
-    "secure": false,
-    "logLevel": "debug"
-  }
+    "/api/*": {
+        "target": "http://localhost:5000/",
+        "secure": false,
+        "logLevel": "debug",
+        "timeout": 3600000
+    },
+    "/import-progress/*": {
+        "target": "http://localhost:5000/",
+        "secure": false,
+        "logLevel": "debug",
+        "timeout": 3600000
+    }
 }

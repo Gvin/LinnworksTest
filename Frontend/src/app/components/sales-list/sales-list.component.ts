@@ -43,7 +43,7 @@ export class SalesListComponent implements OnInit, AfterViewInit {
 
     public selection = new SelectionModel<SalesData>(true, []);
 
-    public defaultPageSize: number = 3;
+    public defaultPageSize: number = 25;
 
     @ViewChild(MatSort) 
     public sort: MatSort;
@@ -111,7 +111,20 @@ export class SalesListComponent implements OnInit, AfterViewInit {
     }
 
     public update(event: CellUpdate, sale: SalesData): void {
-        throw Error("Not implemented");
+        const oldValue = sale[event.name];
+        if (oldValue == event.value) {
+            return;
+        }
+
+        sale[event.name] = event.value;
+        this.salesService.update(sale).pipe(
+            take(1)
+        ).subscribe(result => {
+            if (!result) {
+                // TODO: relpace alert
+                alert('Error while updating sale data')
+            }
+        });
     }
 
     public deleteSelectedSales(): void {

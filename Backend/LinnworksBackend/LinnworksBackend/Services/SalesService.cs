@@ -20,7 +20,7 @@ namespace LinnworksBackend.Services
 
         Task DeleteSales(long[] ids);
 
-        Task AddOrUpdateRecord(SaleDataModel saleData);
+        Task<bool> AddOrUpdateRecord(SaleDataModel saleData);
     }
 
     public class SalesService : ISalesService
@@ -73,21 +73,22 @@ namespace LinnworksBackend.Services
             await _database.SaveChangesAsync();
         }
 
-        public async Task AddOrUpdateRecord(SaleDataModel saleData)
+        public async Task<bool> AddOrUpdateRecord(SaleDataModel saleData)
         {
-            var existingData = await _database.Sales.FirstOrDefaultAsync(sale => sale.OrderId == saleData.OrderId);
-            if (existingData == null)
+            if (_database.Sales.Any(sale => sale.OrderId == saleData.OrderId))
             {
-                _database.Sales.Add(saleData);
+                _database.Sales.Attach(saleData);
+                _database.Entry(saleData).State = EntityState.Modified;
             }
             else
             {
-                _database.Sales.Update(saleData);
+                _database.Sales.Add(saleData);
             }
 
-            await _database.SaveChangesAsync();
-        }
+            var changes = await _database.SaveChangesAsync();
 
+            return changes == 1;
+        }
 
         public async Task SaveSaleData(SaleDataModel saleData)
         {
