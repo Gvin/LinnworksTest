@@ -1,45 +1,145 @@
 <div class="wrapper">
     <div class="commands-wrapper">
-        <a mat-raised-button class="command-button" routerLink="/sales/create">Create</a>
-        <button *ngIf="canDelete()" class="command-button" mat-raised-button (click)="deleteSelectedSale()">Delete</button>
+        <a *ngIf="canEdit()" mat-raised-button class="command-button" routerLink="/sales/create">Create</a>
+        <button *ngIf="canDelete()" class="command-button" mat-raised-button (click)="deleteSelectedSales()">Delete</button>
+        <a *ngIf="canEdit()" mat-raised-button class="command-button" routerLink="/sales/import">Import</a>
     </div>
 
-    <div class="table-wrapper">
-        <mat-form-field>
-            <input matInput placeholder="Search users" #input>
+    <div class="table-area-wrapper">
+        <mat-form-field class="search-field">
+            <input matInput placeholder="Search by Country" #input>
         </mat-form-field>
         
-        <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-            <!-- Selection Column -->
-            <ng-container matColumnDef="select">
-                <mat-header-cell *matHeaderCellDef></mat-header-cell>
-                <mat-cell *matCellDef="let row">
-                    <mat-checkbox (click)="$event.stopPropagation()"
-                                (change)="$event ? selection.toggle(row) : null"
-                                [checked]="selection.isSelected(row)">
-                    </mat-checkbox>
-                </mat-cell>
-            </ng-container>
-
-            <!-- Region Column -->
-            <ng-container matColumnDef="region">
-                <mat-header-cell *matHeaderCellDef> Region </mat-header-cell>
-                <mat-cell *matCellDef="let element">
-                    <editable-table-cell fieldName="region" title="Region" [value]="element.region" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
-                </mat-cell>
-            </ng-container>
+        <div class="table-wrapper">
+            <mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort matSortActive="orderDate" matSortDirection="asc" matSortDisableClear>
+                <!-- Selection Column -->
+                <ng-container matColumnDef="select">
+                    <mat-header-cell *matHeaderCellDef></mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                        <mat-checkbox (click)="$event.stopPropagation()"
+                                    (change)="$event ? selection.toggle(row) : null"
+                                    [checked]="selection.isSelected(row)">
+                        </mat-checkbox>
+                    </mat-cell>
+                </ng-container>
     
-            <!-- Country Column-->
-            <ng-container matColumnDef="country">
-                <mat-header-cell *matHeaderCellDef> Country </mat-header-cell>
-                <mat-cell *matCellDef="let element">
-                    <editable-table-cell fieldName="country" title="Country" [value]="element.country" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
-                </mat-cell>
-            </ng-container>
+                <!-- Region Column -->
+                <ng-container matColumnDef="region">
+                    <mat-header-cell *matHeaderCellDef> Region </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="region" title="Region" [required]="true" [value]="element.region" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+        
+                <!-- Country Column-->
+                <ng-container matColumnDef="country">
+                    <mat-header-cell *matHeaderCellDef> Country </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="country" title="Country" [required]="true" [value]="element.country" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
     
-            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-        </mat-table>
+                <!-- Item Type Column-->
+                <ng-container matColumnDef="itemType">
+                    <mat-header-cell *matHeaderCellDef> Item Type </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="itemType" title="ItemType" [required]="true" [value]="element.itemType" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Sales Channel Column-->
+                <ng-container matColumnDef="salesChannel">
+                    <mat-header-cell *matHeaderCellDef> Sales Channel </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="salesChannel" title="Sales Channel" columnType="select" [options]="salesChannels" [required]="true" [value]="element.salesChannel" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Order Priority Column-->
+                <ng-container matColumnDef="orderPriority">
+                    <mat-header-cell *matHeaderCellDef> Order Priority </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="orderPriority" title="Order Priority" [required]="true" [maxLength]="1" [value]="element.orderPriority" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Order Date Column-->
+                <ng-container matColumnDef="orderDate">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header> Order Date </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="orderDate" title="Order Date" columnType="date" [required]="true" [value]="element.orderDate" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Order Id Column-->
+                <ng-container matColumnDef="orderId">
+                    <mat-header-cell *matHeaderCellDef> Order Id </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        {{element.orderId}}
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Ship Date Column-->
+                <ng-container matColumnDef="shipDate">
+                    <mat-header-cell *matHeaderCellDef> Ship Date </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="shipDate" title="Ship Date" columnType="date" [required]="true" [value]="element.shipDate" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Units Sold Column-->
+                <ng-container matColumnDef="unitsSold">
+                    <mat-header-cell *matHeaderCellDef> Units Sold </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="unitsSold" title="Units Sold" [value]="element.unitsSold" [required]="true" pattern="^[0-9]*$" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Unit Price Column-->
+                <ng-container matColumnDef="unitPrice">
+                    <mat-header-cell *matHeaderCellDef> Unit Price </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="unitPrice" title="Unit Price" [value]="element.unitPrice" [required]="true" pattern="^[0-9]*$" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Unit Cost Column-->
+                <ng-container matColumnDef="unitCost">
+                    <mat-header-cell *matHeaderCellDef> Unit Cost </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="unitCost" title="Unit Cost" [value]="element.unitCost" [required]="true" pattern="^[0-9]*$" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Total Revenue Column-->
+                <ng-container matColumnDef="totalRevenue">
+                    <mat-header-cell *matHeaderCellDef> Total Revenue </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="totalRevenue" title="Total Revenue" [value]="element.totalRevenue" [required]="true" pattern="^[0-9]*$" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Total Cost Column-->
+                <ng-container matColumnDef="totalCost">
+                    <mat-header-cell *matHeaderCellDef> Total Cost </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="totalCost" title="Total Cost" [value]="element.totalCost" [required]="true" pattern="^[0-9]*$" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+    
+                <!-- Total Profit Column-->
+                <ng-container matColumnDef="totalProfit">
+                    <mat-header-cell *matHeaderCellDef> Total Profit </mat-header-cell>
+                    <mat-cell *matCellDef="let element">
+                        <editable-table-cell fieldName="totalProfit" title="Total Profit" [value]="element.totalProfit" [required]="true" pattern="^[0-9]*$" [canEdit]="canEdit()" (update)="update($event, element)"></editable-table-cell>
+                    </mat-cell>
+                </ng-container>
+        
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+            </mat-table>
+        </div>
+        
 
         <div class="loading-wrapper" *ngIf="dataSource.loading$ | async">
             <mat-spinner></mat-spinner>

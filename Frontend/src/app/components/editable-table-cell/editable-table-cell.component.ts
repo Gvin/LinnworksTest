@@ -1,13 +1,21 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { EditCellDialogComponent } from '../edit-cell-dialog/edit-cell-dialog.component';
 
 export interface CellUpdate {
     value: string,
     name: string
 }
 
+const ColumnType = {
+    text: 'text',
+    date: 'date'
+};
+
 @Component({
     selector: 'editable-table-cell',
-    templateUrl: './editable-table-cell.component.html'
+    templateUrl: './editable-table-cell.component.html',
+    styleUrls: ['./editable-table-cell.component.scss']
 })
 export class EditableTableCellComponent {
     @Input()
@@ -22,16 +30,59 @@ export class EditableTableCellComponent {
     @Input()
     public canEdit: boolean;
 
+    @Input()
+    public columnType: string;
+
+    @Input()
+    public required?: boolean;
+
+    @Input()
+    public pattern: string;
+
+    @Input()
+    public maxLength?: number;
+
+    @Input()
+    public options: string[];
+
     @Output() 
     public update = new EventEmitter<CellUpdate>();
 
-    @ViewChild('input')
-    public input: ElementRef;
+    constructor(private dialog: MatDialog) {
+    }
 
-    public callUpdate(): void {
+    public callUpdate(newValue: string): void {
         this.update.emit({
-            value: this.input.nativeElement.value, 
+            value: newValue,
             name: this.fieldName
         });
+    }
+
+    public openEditDialog(): void {
+        const dialogConfig = new MatDialogConfig();
+
+        dialogConfig.disableClose = true;
+        dialogConfig.autoFocus = true;
+
+        dialogConfig.data = {
+            value: this.value,
+            description: this.title,
+            columnType: this.columnType,
+            options: this.options,
+
+            required: this.required,
+            pattern: this.pattern,
+            maxLength: this.maxLength
+        };
+
+        const dialogRef = this.dialog.open(EditCellDialogComponent, dialogConfig);
+
+        dialogRef.afterClosed().subscribe(
+            data => {
+                if (data !== null) {
+                    this.callUpdate(data)
+                }
+            }
+        );
     }
 }

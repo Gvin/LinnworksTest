@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using LinnworksBackend.Model.Client;
 using LinnworksBackend.Model.Database;
@@ -8,7 +6,6 @@ using LinnworksBackend.Model.Views;
 using LinnworksBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 
 namespace LinnworksBackend.Controllers
 {

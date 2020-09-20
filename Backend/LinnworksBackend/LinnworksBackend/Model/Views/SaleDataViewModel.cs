@@ -20,14 +20,14 @@ namespace LinnworksBackend.Model.Views
 
         public int UnitsSold { get; set; }
 
-        public decimal UnitPrice { get; set; }
+        public string UnitPrice { get; set; }
 
-        public decimal UnitCost { get; set; }
+        public string UnitCost { get; set; }
 
-        public decimal TotalRevenue { get; set; }
+        public string TotalRevenue { get; set; }
 
-        public decimal TotalCost { get; set; }
+        public string TotalCost { get; set; }
 
-        public decimal TotalProfit { get; set; }
+        public string TotalProfit { get; set; }
     }
 }

@@ -91,7 +91,7 @@ export class UserService {
         this.refreshCurrentUser();
     }
 
-    public register(login: string, password: string, role: string): Observable<string[]> {
+    public create(login: string, password: string, role: string): Observable<string[]> {
         const url = '/api/user/create';
 
         const formData = new FormData();
@@ -109,9 +109,6 @@ export class UserService {
                 if (!response) {
                     return of(['Unknown error']);
                 }
-                const token = response.result;
-                this.jwtService.setJwtToken(token);
-                this.refreshCurrentUser();
                 return of([]);
             })
         );
@@ -124,7 +121,8 @@ export class UserService {
         formData.append('userId', id);
 
         return this.httpService.post<boolean>(url, formData).pipe(
-            catchError(() => {
+            catchError((error) => {
+                console.error('Error while trying to delete user', error)
                 return of(false);
             })
         );
@@ -139,7 +137,8 @@ export class UserService {
         formData.append('role', user.role);
 
         return this.httpService.post<boolean>(url, formData).pipe(
-            catchError(() => {
+            catchError((error) => {
+                console.error('Error while trying to update user data', error)
                 return of(false)
             })
         );
@@ -153,7 +152,8 @@ export class UserService {
         };
 
         return this.httpService.post(url, credentials).pipe(
-            catchError(() => {
+            catchError((error) => {
+                console.error('Error while trying log in', error)
                 return of(false);
             }),
             mergeMap((response: LoginModel) => {

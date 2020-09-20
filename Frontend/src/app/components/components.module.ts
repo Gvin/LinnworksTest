@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {ComponentsList} from './components.list';
+import {ComponentsList, EntryComponentsList} from './components.list';
 import {RoutingModule} from '../routing.module';
 
 import {MatInputModule} from '@angular/material/input';
@@ -18,6 +18,7 @@ import {MatSortModule} from '@angular/material/sort';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -45,12 +46,14 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatCheckboxModule,
     MatPaginatorModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatProgressBarModule
   ],
   declarations: [
     ...ComponentsList
   ],
   entryComponents: [
+    ...EntryComponentsList
   ]
 })
 export class ComponentsModule {}

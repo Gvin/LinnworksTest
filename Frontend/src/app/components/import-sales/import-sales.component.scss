@@ -1,0 +1,23 @@
+.import-sales {
+    margin: auto;
+    width: 500px;
+    padding-top: 100px;
+
+    .content {
+
+        .selected-files {
+            margin-top: 20px;
+
+            .remove-file-button {
+                width: 30px;
+                height: 30px;
+                vertical-align: middle;;
+            }
+    
+            .delete-icon {
+                font-size: medium;
+                vertical-align: super;
+            }
+        }
+    }
+}

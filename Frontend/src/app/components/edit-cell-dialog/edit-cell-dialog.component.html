@@ -1,0 +1,32 @@
+<div class="dialog">
+    <h2 mat-dialog-title>Enter Value</h2>
+
+    <mat-dialog-content>
+    
+        <mat-form-field appearance="legacy" [ngSwitch]="getColumnType()">
+            <ng-container *ngSwitchCase="'text'">
+                <input [formControl]="formField" matInput placeholder="{{description}}">
+            </ng-container>
+            
+            <ng-container *ngSwitchCase="'date'">
+                <input class="date-input" matInput [formControl]="formField" type="date" [value]="formField.value" placeholder="{{description}}">
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'select'">
+                <mat-select [formControl]="formField">
+                    <mat-option *ngFor="let option of options" value="option">{{option}}</mat-option>
+                </mat-select>
+            </ng-container>
+        </mat-form-field>
+
+        <mat-error *ngIf="formField.hasError('required')">Field is required.</mat-error>
+        <mat-error *ngIf="formField.hasError('pattern')">Value has invalid format.</mat-error>
+        <mat-error *ngIf="formField.hasError('maxlength')">Value has invalid format.</mat-error>
+    
+    </mat-dialog-content>
+
+    <mat-dialog-actions>
+        <button class="mat-raised-button"(click)="close()">Close</button>
+        <button class="mat-raised-button mat-primary"(click)="save()">Save</button>
+    </mat-dialog-actions>
+</div>

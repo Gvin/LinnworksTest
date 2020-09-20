@@ -1,0 +1,38 @@
+<div class="import-sales">
+    <mat-card>
+        <mat-card-title>Select order data files to import</mat-card-title>
+
+        <mat-card-content class="content">
+
+            <div [hidden]="uploading">
+                <button (click)="fileField.click()" mat-raised-button>Browse</button>
+                <input hidden #fileField type="file" (change)="handleFilesSelected()" accept=".csv" multiple="true">
+        
+                <ng-container *ngIf="getIfFilesSelected()">
+                    <div class="selected-files">
+                        <span>Selected files</span>
+                        <ul>
+                            <li *ngFor="let file of selectedFiles">
+                                <span>{{file.name}} <button class="remove-file-button" mat-mini-fab color="warn" aria-label="Remove File" (click)="removeSelectedFile(file)"><span class="material-icons delete-icon">delete</span></button></span>
+                            </li>
+                        </ul>
+                    </div>
+                </ng-container>
+            </div>
+
+            <ng-container *ngIf="uploading">
+                <div>Uploading...</div>
+                <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+            </ng-container>
+            
+        </mat-card-content>
+
+        <mat-card-actions>
+            <ng-container *ngIf="!uploading">
+                <button (click)="handleImportClick()" type="button" [disabled]="!getIfFilesSelected()" mat-raised-button color="primary">Import</button>
+                <button (click)="handleCancelClick()" type="button" mat-raised-button>Cancel</button>
+            </ng-container>
+        </mat-card-actions>
+        
+    </mat-card>
+</div>

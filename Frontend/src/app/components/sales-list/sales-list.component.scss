@@ -1,9 +1,9 @@
 .wrapper {
+    width: 80%;
+    margin: auto;
     
     .commands-wrapper {
         padding-top: 20px;
-        width: 80%;
-        margin: auto;
 
         .command-button {
             margin-left: 10px;
@@ -19,11 +19,79 @@
         }
     }
 
-    .table-wrapper {
+    .table-area-wrapper {
         padding-top: 20px;
-        width: 80%;
-        margin: auto;
 
+        .search-field {
+            width: 100%;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+
+            .mat-header-cell {
+                margin-right: 10px;
+            }
+            .mat-cell {
+                margin-right: 10px;
+            }
+
+            // TODO: Use mixin for that
+            .mat-column-select {
+                flex: 0 0 40px;
+            }
+            .mat-column-orderId {
+                flex: 0 0 100px;
+            }
+            .mat-column-region {
+                flex: 0 0 200px;
+            }
+            .mat-column-country {
+                flex: 0 0 200px;
+            }
+            .mat-column-itemType {
+                flex: 0 0 200px;
+            }
+            .mat-column-salesChannel {
+                flex: 0 0 100px;
+            }
+            .mat-column-orderPriority {
+                flex: 0 0 70px;
+            }
+            .mat-column-orderDate {
+                flex: 0 0 200px;
+            }
+            .mat-column-shipDate {
+                flex: 0 0 200px;
+            }
+            .mat-column-unitsSold {
+                flex: 0 0 70px;
+            }
+            .mat-column-unitPrice {
+                flex: 0 0 70px;
+            }
+            .mat-column-unitCost {
+                flex: 0 0 70px;
+            }
+            .mat-column-totalRevenue {
+                flex: 0 0 70px;
+            }
+            .mat-column-totalCost {
+                flex: 0 0 70px;
+            }
+            .mat-column-totalProfit {
+                flex: 0 0 70px;
+            }
+
+            mat-table {
+                width: 1900px;
+
+                editable-table-cell {
+                    width: 100%;
+                }
+            }
+        }
+        
         .mat-column-select {
             overflow: initial;
         }

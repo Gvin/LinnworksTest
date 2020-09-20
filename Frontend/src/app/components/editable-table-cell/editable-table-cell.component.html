@@ -1,7 +1,5 @@
 <ng-container *ngIf="canEdit">
-    <mat-form-field floatLabel="never">
-        <input matInput placeholder="{{title}}" [value]="value" (keydown.enter)="callUpdate()" #input>
-    </mat-form-field>
+    <div class="editable-value" (click)="openEditDialog()">{{value}} <span class="material-icons edit-icon">edit</span></div>
 </ng-container>
 <ng-container *ngIf="!canEdit">
     {{value}}

@@ -46,7 +46,7 @@ export class CreateUserComponent {
             return;
         }
 
-        this.userService.register(login, password, role).pipe(
+        this.userService.create(login, password, role).pipe(
             take(1)
           ).subscribe(result => {
             this.creationError = !result;

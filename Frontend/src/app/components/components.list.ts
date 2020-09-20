@@ -9,6 +9,8 @@ import {UsersListComponent} from './users-list/users-list.component';
 import {CreateUserComponent} from './create-user/create-user.component';
 import { EditableTableCellComponent } from './editable-table-cell/editable-table-cell.component';
 import { CreateSalesDataComponent } from './create-sales-data/create-sales-data.component';
+import { EditCellDialogComponent } from './edit-cell-dialog/edit-cell-dialog.component';
+import { ImportSalesComponent } from './import-sales/import-sales.component';
 
 export const ComponentsList = [
   MainAppComponent,
@@ -21,5 +23,11 @@ export const ComponentsList = [
   UsersListComponent,
   CreateUserComponent,
   EditableTableCellComponent,
-  CreateSalesDataComponent
+  CreateSalesDataComponent,
+  EditCellDialogComponent,
+  ImportSalesComponent
+];
+
+export const EntryComponentsList = [
+  EditCellDialogComponent
 ];

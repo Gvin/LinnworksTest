@@ -2,6 +2,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using LinnworksBackend.Data;
+using LinnworksBackend.Data.AsyncJobs;
 using LinnworksBackend.Model.Database;
 using LinnworksBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,10 +31,13 @@ namespace LinnworksBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers().AddNewtonsoftJson();
+
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IDatabaseSeedingService, DatabaseSeedingService>();
             services.AddScoped<ISalesService, SalesService>();
+            services.AddSingleton<IAsyncJobsProcessor, AsyncJobsProcessor>();
 
             ConfigureDb(services);
             ConfigureAuthentication(services);

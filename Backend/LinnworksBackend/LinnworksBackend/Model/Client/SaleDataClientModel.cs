@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LinnworksBackend.Model.Client
+﻿namespace LinnworksBackend.Model.Client
 {
     public class SaleDataClientModel
     {
@@ -16,9 +14,9 @@ namespace LinnworksBackend.Model.Client
 
         public string OrderPriority { get; set; }
 
-        public DateTime OrderDate { get; set; }
+        public string OrderDate { get; set; }
 
-        public DateTime ShipDate { get; set; }
+        public string ShipDate { get; set; }
 
         public int UnitsSold { get; set; }
 

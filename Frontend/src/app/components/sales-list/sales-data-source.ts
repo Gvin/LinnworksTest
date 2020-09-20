@@ -22,12 +22,12 @@ export class SalesDataSource implements DataSource<SalesData> {
         this.loadingSubject.complete();
     }
   
-    public loadSales(pageIndex = 0, pageSize = 3): void {
+    public loadSales(filter: string = '', sort: string = 'asc', pageIndex = 0, pageSize = 3): void {
 
         this.loadingSubject.next(true);
         this.salesSubject.next([]);
 
-        this.salesService.getList(pageIndex, pageSize).pipe(
+        this.salesService.getList(filter, sort, pageIndex, pageSize).pipe(
             catchError(() => of([])),
             finalize(() => this.loadingSubject.next(false))
         )
