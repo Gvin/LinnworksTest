@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using LinnworksBackend.Data.AsyncJobs;
 using LinnworksBackend.Hubs;
 using LinnworksBackend.Model.Client;
 using LinnworksBackend.Model.Database;
@@ -130,6 +129,20 @@ namespace LinnworksBackend.Controllers
             var ids = idsString.Split(",").Select(id => long.Parse(id)).ToArray();
             await _salesService.DeleteSales(ids);
             return Ok(true);
+        }
+
+        [Authorize(Roles = UserRole.RolesCanViewSales)]
+        [HttpGet("countries")]
+        public async Task<string[]> Countries()
+        {
+            return await _salesService.GetCountries();
+        }
+
+        [Authorize(Roles = UserRole.RolesCanViewSales)]
+        [HttpGet("statistics")]
+        public async Task<SalesStatisticsClientModel[]> Statistics(string country)
+        {
+            return await _salesService.GetStatistics(country);
         }
 
         [Authorize(Roles = UserRole.RolesCanEditSales)]

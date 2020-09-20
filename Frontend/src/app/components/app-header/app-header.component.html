@@ -6,6 +6,9 @@
     <div *ngIf="getIfUserCanManageSales()" class="inline-panel">
         <a routerLink="/sales" class="link-button" mat-raised-button>Sales</a>
     </div>
+    <div *ngIf="getIfUserCanManageSales()" class="inline-panel">
+        <a routerLink="/statistics" class="link-button" mat-raised-button>Statistics</a>
+    </div>
     <div *ngIf="getIfUserCanManageUsers()" class="inline-panel">
         <a routerLink="/users" class="link-button" mat-raised-button>Users</a>
     </div>

@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError} from 'rxjs/operators';
 import { SalesData } from 'src/app/models/sales-data.model';
+import { SalesStatisticsModel } from 'src/app/models/sales-statistics.model';
 import { HttpService, UploadProgress } from '../http-service/http.service';
 
 @Injectable({
@@ -64,6 +65,28 @@ export class SalesService {
             catchError(error => {
                 console.error('Error while trying to update sales data', error);
                 return of(false);
+            })
+        );
+    }
+
+    public getCountries(): Observable<string[]> {
+        const url = '/api/sales/countries';
+
+        return this.httpService.get<string[]>(url).pipe(
+            catchError(error => {
+                console.error('Error while trying to get countries list', error);
+                return of([]);
+            })
+        );
+    }
+
+    public getStatistics(country: string): Observable<SalesStatisticsModel[]> {
+        const url = '/api/sales/statistics';
+
+        return this.httpService.get<SalesStatisticsModel[]>(url, {'country': country}).pipe(
+            catchError(error => {
+                console.error('Error while trying to get statistics', error);
+                return of([]);
             })
         );
     }

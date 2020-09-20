@@ -2,7 +2,6 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using LinnworksBackend.Data;
-using LinnworksBackend.Data.AsyncJobs;
 using LinnworksBackend.Hubs;
 using LinnworksBackend.Model.Database;
 using LinnworksBackend.Services;
@@ -38,9 +37,8 @@ namespace LinnworksBackend
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IDatabaseSeedingService, DatabaseSeedingService>();
             services.AddScoped<ISalesService, SalesService>();
-            services.AddSingleton<IAsyncJobsProcessor, AsyncJobsProcessor>();
 
-            
+
 
             ConfigureDb(services);
             ConfigureAuthentication(services);

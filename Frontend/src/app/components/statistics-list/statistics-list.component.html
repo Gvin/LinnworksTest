@@ -1,1 +1,33 @@
-Statistics List
+<div class="statistics">
+    <mat-form-field class="country-selector" appearance="legacy" *ngIf="countriesLoaded()">
+        <mat-label>Select country to view statistics</mat-label>
+        <mat-select [(value)]="selectedCountry" (selectionChange)="updateStatisticsTable()">
+          <mat-option *ngFor="let country of countries" [value]="country">
+            {{country}}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <div class="table-wrapper" *ngIf="selectedCountry">
+        <mat-table [dataSource]="statistics" class="mat-elevation-z8">
+
+            <ng-container matColumnDef="year">
+                <mat-header-cell *matHeaderCellDef> Year </mat-header-cell>
+                <mat-cell *matCellDef="let element">{{element.year}}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="totalSold">
+                <mat-header-cell *matHeaderCellDef> Total Sold </mat-header-cell>
+                <mat-cell *matCellDef="let element">{{element.totalSold}}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="totalProfit">
+                <mat-header-cell *matHeaderCellDef> Total Profit </mat-header-cell>
+                <mat-cell *matCellDef="let element">{{element.totalProfit}}</mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+    </div>
+</div>

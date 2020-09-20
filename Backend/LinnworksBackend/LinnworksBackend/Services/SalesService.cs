@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LinnworksBackend.Data;
+using LinnworksBackend.Model.Client;
 using LinnworksBackend.Model.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,10 @@ namespace LinnworksBackend.Services
         Task DeleteSales(long[] ids);
 
         Task<bool> AddOrUpdateRecord(SaleDataModel saleData);
+
+        Task<string[]> GetCountries();
+
+        Task<SalesStatisticsClientModel[]> GetStatistics(string country);
     }
 
     public class SalesService : ISalesService
@@ -88,6 +93,26 @@ namespace LinnworksBackend.Services
             var changes = await _database.SaveChangesAsync();
 
             return changes == 1;
+        }
+
+        public async Task<string[]> GetCountries()
+        {
+            return await _database.Sales.Select(sale => sale.Country).Distinct().ToArrayAsync();
+        }
+
+        public async Task<SalesStatisticsClientModel[]> GetStatistics(string country)
+        {
+            return await _database.Sales
+                .Where(sale => sale.Country == country)
+                .GroupBy(sale => sale.OrderDate.Year)
+                .Select(g => new SalesStatisticsClientModel
+                {
+                    Year = g.Key,
+                    TotalProfit = g.Sum(sale => sale.TotalProfit),
+                    TotalSold = g.Sum(sale => sale.UnitsSold)
+                })
+                .OrderByDescending(sale => sale.Year)
+                .ToArrayAsync();
         }
 
         public async Task SaveSaleData(SaleDataModel saleData)
